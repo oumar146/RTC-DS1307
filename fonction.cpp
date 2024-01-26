@@ -1,10 +1,18 @@
-#include "fonction.h"
+//il est important d'inclure la bibliothèue Wire.h car le module RTC DS1307 utilise le protocole I2C 
 #include <Wire.h>
 
+//adresse des registres dans le module RTC
 #define ADRESSE_SECONDES 0x00
 #define ADRESSE_MINUTES 0x01
 #define ADRESSE_HEURES 0x02
 
+/*fonction permettante d'écrire dans un registre du module RTC :
+- La fonction ne retourne rien
+
+- Exemple : 
+  paramètre 1 : 0X00 pour écrire dans le registre des secondes
+  paramètre 2 : 0x30 pour 30 secondes
+*/
 void ecritureRtc(int adresse, int donnee)
 {
   Wire.beginTransmission(0x68); // secondes
@@ -12,7 +20,13 @@ void ecritureRtc(int adresse, int donnee)
   Wire.write(donnee);
   Wire.endTransmission();
 }
+/*fonction permettante de lire dans un registre du module RTC :
+- La fonction retourne les données en entier
 
+- Exemple : 
+  paramètre 1 : 0X01 pour lire dans le registre des minutes
+  La fonction retourne 45 (int) 
+*/
 int lectureRtc(int adresse)
 {
   int donnee = -1;
@@ -53,6 +67,23 @@ int lectureRtc(int adresse)
   }
   return donnee;
 }
+
+/*fonction permettante de créer une temporisation :
+- retourne 1 (int) si la temporisation est terminée
+- retourne 0 (int) si la temporisation n'est pas terminée
+
+- Exemple d'une temporisation de 600 secondes (10 min) déclencher à 12h50 : 
+  paramètre 1 : 0x12
+  paramètre 2 : 0x50
+  paramètre 3 : 0x00
+  paramètre 4 : 0x12
+  paramètre 5 : 0x57
+  paramètre 6 : 0x40
+  paramètre 7 : 0x600
+
+  Resultat :La fonction retournera 0 car les 600 secondes ne sont pas encore passés
+
+*/
 
 int temporisation(int *heure_debut_temporisation, int *minute_debut_temporisation, int *seconde_debut_temporisation, int heure_actuelle, int minute_actuelle, int seconde_actuelle, int duree_en_secondes)
 {
@@ -111,50 +142,3 @@ int temporisation(int *heure_debut_temporisation, int *minute_debut_temporisatio
   return tempo_terminee;
 }
 
-int initalisationHeure()
-{
-  char saisiHeure[2];
-  int heure;
-  while (Serial.available() == 0)
-    ;                             // atendre la saisie d'un caractère
-  saisiHeure[0] = Serial.read();  // stocker le caractère saisie
-  Serial.print(saisiHeure[0]);    // afficher le caractère saisie sur le terminal
-  int decimal = atoi(saisiHeure); // conversion du caractère saisie en entier
-  int unite = atoi(saisiHeure);
-  decimal = (decimal << 4); // décalage de 4 bits vers la gauche
-
-  while (Serial.available() == 0)
-    ;                            // atendre la saisie d'un caractère
-  saisiHeure[0] = Serial.read(); // stocker le caractère saisie
-  Serial.print(saisiHeure[0]);   // afficher le caractère saisie sur le terminal
-
-  if (saisiHeure[0] != 0xD)
-  {
-    unite = atoi(saisiHeure); // conversion du caractère saisie en entier
-    heure = decimal + unite;  // initialisation de l'heure saisie dans le champs heures
-  }
-  else
-  {
-    decimal = 0;
-    heure = unite; // initialisation de l'heure saisie dans le champs heures
-  }
-  return heure;
-}
-int initalisationMinute()
-{
-  char saisiHeure[2];
-  int minute = 0;
-  while (Serial.available() == 0)
-    ;                             // atendre la saisie d'un caractère
-  saisiHeure[0] = Serial.read();  // stocker le caractère saisie
-  Serial.print(saisiHeure[0]);    // afficher le caractère saisie sur le terminal
-  int decimal = atoi(saisiHeure); // conversion du caractère saisie en entier
-  decimal = (decimal << 4);       // décalage de 4 bits vers la gauche
-  while (Serial.available() == 0)
-    ;                            // atendre la saisie d'un caractère
-  saisiHeure[0] = Serial.read(); // stocker le caractère saisie
-  Serial.print(saisiHeure[0]);   // afficher le caractère saisie sur le terminal
-  int unite = atoi(saisiHeure);  // conversion du caractère saisie en entier
-  minute = decimal + unite;      // initialisation de l'heure saisie dans le champs heures
-  return minute;
-}
