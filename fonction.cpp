@@ -76,8 +76,8 @@ int lectureRtc(int adresse)
   paramètre 1 : 0x12
   paramètre 2 : 0x50
   paramètre 3 : 0x00
-  paramètre 4 : 0x12
-  paramètre 5 : 0x57
+  paramètre 4 : 0x13
+  paramètre 5 : 0x01
   paramètre 6 : 0x40
   paramètre 7 : 0x600
 
